@@ -60,6 +60,22 @@ $("goal").onchange = () => {
   render();
 };
 
+
+/* ---------- emoji + macro in cuvinte ---------- */
+const EMO = [
+  [/pui|piept|curcan|pasare|gaina/, "\u{1F357}"], [/ou[aau]?\b|omleta|oua/, "\u{1F95A}"], [/paine|toast|sandvis|chifla|covrig|felie/, "\u{1F35E}"],
+  [/salam|sunca|crenvurst|parizer|mezel|bacon|carnati|cabanos/, "\u{1F953}"], [/porc|vita|friptura|carne|burger|ceafa|cotlet|mici|steak/, "\u{1F969}"],
+  [/peste|somon|ton\b|ton |sardin|macrou|crap|pastrav|creveti/, "\u{1F41F}"], [/orez|risotto/, "\u{1F35A}"], [/paste|spaghet|macaroane|penne|lasagna/, "\u{1F35D}"],
+  [/cartof|piure/, "\u{1F954}"], [/rosi[ie]|salata|castravet|ardei|morcov|legum|varza|spanac|brocoli|ciuperc|ceapa|dovlecel|vinete/, "\u{1F957}"],
+  [/mar[aei]?\b|mere\b/, "\u{1F34E}"], [/banan/, "\u{1F34C}"], [/portocal|mandarin|clementin|lamai|grapefruit/, "\u{1F34A}"], [/capsun|fruct|pere|piersic|struguri|cirese|visin|kiwi|pepene|afin/, "\u{1F353}"],
+  [/lapte|iaurt|kefir|smantana|cascaval|branza|telemea|mozzarella|urda|brie/, "\u{1F9C0}"], [/ciocolat|prajitur|tort|biscuit|inghetata|bomboan|clatit|papanas|desert|vafa|gogos/, "\u{1F370}"],
+  [/cafea|ceai|suc|bere|vin\b|apa\b|cola|limonada/, "\u2615"], [/pizza/, "\u{1F355}"], [/supa|ciorba|sarmale|tocan|gulas|mancare/, "\u{1F372}"], [/nuc|alune|migdal|seminte|fistic|caju/, "\u{1F95C}"], [/ovaz|musli|cereal|fulgi/, "\u{1F963}"],
+];
+const norm = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+function foodEmoji(name) { const n = norm(name); for (const [re, e] of EMO) if (re.test(n)) return e; return "\u{1F37D}\uFE0F"; }
+const macroText = (x) => ` g \u00B7 ${rnd(x.protein)} g proteine \u00B7 ${rnd(x.fat)} g grasimi \u00B7 ${rnd(x.carbs)} g carbo`;
+const nameEl = (name) => el("div", { className: "n", textContent: foodEmoji(name) + " " + name });
+
 function scaleItem(x, g) {
   const f = g / x.grams;
   return { ...x, grams: g, kcal: x.kcal * f, protein: x.protein * f, fat: x.fat * f, carbs: x.carbs * f };
@@ -88,11 +104,11 @@ function render() {
   items.slice().reverse().forEach((e) => {
     const time = new Date(e.t).toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" });
     const gi = gramInput(e.grams, (g) => { save(load().map((x) => (x.id === e.id ? scaleItem(x, g) : x))); render(); });
-    const d = el("div", { className: "d" }, time + " - ", gi, ` g - P${rnd(e.protein)} G${rnd(e.fat)} C${rnd(e.carbs)}`);
+    const d = el("div", { className: "d" }, time + " - ", gi, macroText(e));
     const del = el("button", { className: "x", textContent: "x" });
     del.setAttribute("aria-label", "Sterge");
     del.onclick = () => { save(load().filter((x) => x.id !== e.id)); render(); };
-    box.append(el("div", { className: "meal" }, el("div", { className: "grow" }, el("div", { className: "n", textContent: e.name }), d), el("div", { className: "k", textContent: rnd(e.kcal) + " kcal" }), del));
+    box.append(el("div", { className: "meal" }, el("div", { className: "grow" }, nameEl(e.name), d), el("div", { className: "k", textContent: rnd(e.kcal) + " kcal" }), del));
   });
 }
 
@@ -174,7 +190,7 @@ function renderDraft() {
     const del = el("button", { className: "x", textContent: "x" });
     del.setAttribute("aria-label", "Scoate ingredientul");
     del.onclick = () => { draft.items.splice(i, 1); renderDraft(); };
-    box.append(el("div", { className: "meal" }, el("div", { className: "grow" }, el("div", { className: "n", textContent: it.name }), el("div", { className: "d" }, gi, ` g - P${rnd(it.protein)} G${rnd(it.fat)} C${rnd(it.carbs)}`)), el("div", { className: "k", textContent: rnd(it.kcal) + " kcal" }), del));
+    box.append(el("div", { className: "meal" }, el("div", { className: "grow" }, nameEl(it.name), el("div", { className: "d" }, gi, macroText(it))), el("div", { className: "k", textContent: rnd(it.kcal) + " kcal" }), del));
   });
   const t = totals(draft.items), s = servingsVal();
   const tb = $("rTot"); tb.textContent = "";
@@ -253,8 +269,8 @@ function renderList() {
       renderList();
     };
     box.append(el("div", { className: "rc" },
-      el("div", { className: "t", textContent: r.title }),
-      el("div", { className: "s", textContent: `${s} ${s === 1 ? "portie" : "portii"} - ${rnd(t.kcal / s)} kcal/portie - P${rnd(t.protein / s)} G${rnd(t.fat / s)} C${rnd(t.carbs / s)}` }),
+      el("div", { className: "t", textContent: foodEmoji(r.title) + " " + r.title }),
+      el("div", { className: "s", textContent: `${s} ${s === 1 ? "portie" : "portii"} - ${rnd(t.kcal / s)} kcal/portie \u00B7 ${rnd(t.protein / s)} g proteine \u00B7 ${rnd(t.fat / s)} g grasimi \u00B7 ${rnd(t.carbs / s)} g carbo` }),
       el("div", { className: "acts" }, pin, add, edit, del)));
   });
 }
