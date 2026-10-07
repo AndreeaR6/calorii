@@ -56,12 +56,15 @@ function resize(file, max = 1000) {
   });
 }
 
-$("file").onchange = () => { $("photoBtn").textContent = $("file").files[0] ? "Poza aleasa" : "Poza cu mancare"; };
+let chosenFile = null;
+const pick = (e) => { chosenFile = e.target.files[0] || null; $("chosen").textContent = chosenFile ? "Poza aleasa: " + chosenFile.name : ""; };
+$("fileCam").onchange = pick;
+$("fileGal").onchange = pick;
 
 $("go").onclick = async () => {
   const code = $("code").value.trim();
   try { localStorage.setItem("calorii.code", code); } catch {}
-  const f = $("file").files[0], text = $("desc").value.trim();
+  const f = chosenFile, text = $("desc").value.trim();
   $("msg").className = ""; 
   if (!f && !text) { $("msg").textContent = "Adauga poza sau descriere."; return; }
   $("msg").textContent = "Se calculeaza...";
@@ -79,7 +82,7 @@ $("go").onclick = async () => {
     const ok = save(d);
     $("msg").className = ok ? "" : "err";
     $("msg").textContent = ok ? "Adaugat. Daca nu e corect, sterge cu x." : "ATENTIE: browserul nu salveaza datele (mod privat sau browser in aplicatie). Deschide in Safari.";
-    $("desc").value = ""; $("file").value = ""; $("photoBtn").textContent = "Poza cu mancare";
+    $("desc").value = ""; $("fileCam").value = ""; $("fileGal").value = ""; chosenFile = null; $("chosen").textContent = "";
     render();
   } catch (e) { $("msg").className = "err"; $("msg").textContent = "Eroare: " + e.message; }
 };
