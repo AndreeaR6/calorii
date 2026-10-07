@@ -23,9 +23,9 @@ async function api(path, body) {
   if (!r.ok) {
     if (r.status === 401 || j.error === "cod_invalid") {
       tab("azi");
-      $("settings").open = true;
-      setMsg("cmsg", "Cod lipsa sau gresit - introdu-l aici.", true);
-      $("code").focus();
+      $("codeCard").hidden = false;
+      setMsg("ccmsg", "Cod lipsa sau gresit - introdu-l aici.", true);
+      $("code2").focus();
     }
     throw new Error((j.error || "eroare") + (j.status ? " (" + j.status + ")" : ""));
   }
@@ -46,7 +46,12 @@ $("tabRet").onclick = () => tab("ret");
 
 /* ---------- Azi ---------- */
 try { $("code").value = localStorage.getItem("calorii.code") || ""; } catch {}
-$("code").oninput = () => { try { localStorage.setItem("calorii.code", $("code").value.trim()); } catch {} setMsg("cmsg", "", false); };
+const saveCode = (v) => { try { localStorage.setItem("calorii.code", v.trim()); } catch {} };
+$("codeCard").hidden = !!$("code").value;
+$("code2").value = $("code").value;
+$("code").oninput = () => { saveCode($("code").value); $("code2").value = $("code").value; };
+$("code2").oninput = () => { saveCode($("code2").value); $("code").value = $("code2").value; setMsg("ccmsg", "", false); };
+$("code2").onchange = () => { if ($("code2").value.trim()) $("codeCard").hidden = true; };
 $("goal").value = getGoal();
 $("goal").onchange = () => {
   const v = Math.max(800, Math.min(6000, Number($("goal").value) || 2000));
