@@ -10,14 +10,13 @@
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
-:root{--g:#2e7d32;--g2:#a5d6a7;--bg:#f4f8f4;--card:#fff;--tx:#1b2b1c;--mut:#667a68;--err:#b3261e}
+:root{--g:#2e7d32;--g2:#a5d6a7;--bg:#f4f8f4;--card:#fff;--tx:#1b2b1c;--mut:#667a68;--err:#b3261e;--line:#cfdccf}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px 40px}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:max(12px,env(safe-area-inset-top)) 16px calc(84px + env(safe-area-inset-bottom))}
 main{max-width:520px;margin:auto}
-header{display:flex;align-items:center;gap:10px;margin:4px 0 14px}
-header img{width:36px;height:36px;border-radius:10px}
-header h1{font-size:22px;margin:0}
+.banner{display:block;width:100%;height:112px;object-fit:cover;border-radius:20px;margin:0 0 14px}
 .card{background:var(--card);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+h2{margin:0 0 10px;font-size:18px}
 .ringwrap{display:flex;align-items:center;gap:18px}
 .ring{position:relative;width:132px;height:132px;flex:none}
 .ring svg{transform:rotate(-90deg)}
@@ -25,66 +24,121 @@ header h1{font-size:22px;margin:0}
 .ring b{font-size:28px;line-height:1}.ring span{font-size:12px;color:var(--mut)}
 .macros{flex:1;display:grid;gap:8px}
 .m{display:flex;justify-content:space-between;font-size:14px}.m i{font-style:normal;color:var(--mut)}
-.goal{margin-top:12px;font-size:13px;color:var(--mut);display:flex;align-items:center;gap:8px}
-.goal input[type=number]{width:96px;padding:6px 8px;font-size:14px;border-radius:10px}.goal{white-space:nowrap}
+.goal{margin-top:12px;font-size:13px;color:var(--mut);display:flex;align-items:center;gap:8px;white-space:nowrap}
+input[type=number].sm{width:96px;padding:6px 8px;font-size:14px;border-radius:10px;border:1px solid var(--line)}
 .pick{display:flex;gap:10px;margin-bottom:10px}
-.btn{flex:1;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:600;cursor:pointer}
-.btn.p{background:var(--g);color:#fff}.btn.s{background:#e6f1e6;color:var(--g)}
-#fileCam,#fileGal{display:none}
-textarea,input[type=password],input[type=number]{width:100%;font-size:16px;padding:12px;border:1px solid #cfdccf;border-radius:14px;font-family:inherit}
-textarea{resize:none;margin-bottom:10px}
-#msg{font-size:14px;color:var(--mut);min-height:20px;margin-top:8px}.err{color:var(--err)!important}
-.meal{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid #edf2ed}
+.btn{flex:1;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;text-align:center}
+.btn.p{background:var(--g);color:#fff}.btn.s{background:#e6f1e6;color:var(--g)}.btn.d{background:#fdecea;color:var(--err)}
+.btn.sm{padding:9px 12px;font-size:14px;flex:none}
+input[type=file]{display:none}
+textarea,input[type=password],input[type=text],input[type=number]{width:100%;font-size:16px;padding:12px;border:1px solid var(--line);border-radius:14px;font-family:inherit;background:#fff;color:var(--tx)}
+textarea{resize:vertical;margin-bottom:10px}
+.msg{font-size:14px;color:var(--mut);min-height:20px;margin-top:8px}.err{color:var(--err)!important}
+.row2{display:flex;gap:10px;margin-bottom:10px}.row2>*{flex:1}
+.row2 .narrow{flex:0 0 96px}
+label.l{display:block;font-size:12px;color:var(--mut);margin:0 0 4px}
+.meal{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid #edf2ed;gap:8px}
 .meal:first-child{border-top:0}
-.meal .n{font-weight:600}.meal .d{font-size:12px;color:var(--mut)}
-.meal .k{font-weight:700;color:var(--g);margin:0 10px;white-space:nowrap}
-.x{border:0;background:#f1f1f1;border-radius:10px;width:32px;height:32px;font-size:16px;cursor:pointer}
+.meal .grow{flex:1;min-width:0}
+.meal .n{font-weight:600;overflow-wrap:anywhere}.meal .d{font-size:12px;color:var(--mut)}
+.meal .k{font-weight:700;color:var(--g);white-space:nowrap}
+.x{border:0;background:#f1f1f1;border-radius:10px;width:32px;height:32px;font-size:16px;cursor:pointer;flex:none}
+input.gi{width:64px;padding:3px 6px;font-size:13px;border:1px solid var(--line);border-radius:8px}
 details{margin-top:6px}summary{cursor:pointer;color:var(--mut);font-size:14px}
 .empty{color:var(--mut);font-size:14px}
 small{color:var(--mut)}
-input.gi{width:64px;padding:3px 6px;font-size:13px;border:1px solid #cfdccf;border-radius:8px}
+.tot{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin:10px 0}
+.tot div{background:#f1f7f1;border-radius:12px;padding:8px 4px}.tot b{display:block;font-size:16px}.tot span{font-size:11px;color:var(--mut)}
+.rc{border-top:1px solid #edf2ed;padding:14px 0}.rc:first-of-type{border-top:0}
+.rc .t{font-weight:700;font-size:16px;overflow-wrap:anywhere}
+.rc .s{font-size:13px;color:var(--mut);margin:2px 0 8px}
+.rc .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rc input[type=number]{width:72px;padding:8px;font-size:14px;border-radius:10px}
+nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #e3ece3;display:flex;padding:8px 16px calc(8px + env(safe-area-inset-bottom));gap:10px;z-index:5}
+nav button{flex:1;border:0;background:none;padding:8px;font-size:13px;color:var(--mut);cursor:pointer;border-radius:12px}
+nav button.on{background:#e6f1e6;color:var(--g);font-weight:700}
+nav svg{display:block;margin:0 auto 2px}
+[hidden]{display:none!important}
 </style></head><body><main>
-<header><img src="/icon.svg" alt=""><h1>Calorii</h1></header>
 
-<section class="card">
-  <div class="ringwrap">
-    <div class="ring">
-      <svg width="132" height="132" viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="#e6f1e6" stroke-width="14"/><circle id="arc" cx="66" cy="66" r="56" fill="none" stroke="#2e7d32" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 352"/></svg>
-      <div class="c"><b id="tot">0</b><span>kcal azi</span></div>
+<section id="pageAzi">
+  <img class="banner" src="/banner.svg" alt="Calorii">
+  <div class="card">
+    <div class="ringwrap">
+      <div class="ring">
+        <svg width="132" height="132" viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="#e6f1e6" stroke-width="14"/><circle id="arc" cx="66" cy="66" r="56" fill="none" stroke="#2e7d32" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 352"/></svg>
+        <div class="c"><b id="tot">0</b><span>kcal azi</span></div>
+      </div>
+      <div class="macros">
+        <div class="m"><i>Proteine</i><b id="mp">0 g</b></div>
+        <div class="m"><i>Grasimi</i><b id="mf">0 g</b></div>
+        <div class="m"><i>Carbohidrati</i><b id="mc">0 g</b></div>
+      </div>
     </div>
-    <div class="macros">
-      <div class="m"><i>Proteine</i><b id="mp">0 g</b></div>
-      <div class="m"><i>Grasimi</i><b id="mf">0 g</b></div>
-      <div class="m"><i>Carbohidrati</i><b id="mc">0 g</b></div>
+    <div class="goal">Tinta zilnica <input class="sm" id="goal" type="number" inputmode="numeric" min="800" max="6000"> kcal</div>
+  </div>
+
+  <div class="card">
+    <div class="pick">
+      <label class="btn p" for="fileCam">Fa poza</label>
+      <label class="btn p" for="fileGal">Din galerie</label>
+      <input id="fileCam" type="file" accept="image/*" capture="environment">
+      <input id="fileGal" type="file" accept="image/*">
+    </div>
+    <div id="chosen" class="empty" style="margin-bottom:10px"></div>
+    <textarea id="desc" rows="2" placeholder="sau descrie mancarea (ex: 2 oua si paine)"></textarea>
+    <button class="btn s" id="go" style="width:100%">Calculeaza</button>
+    <div id="msg" class="msg"></div>
+  </div>
+
+  <div class="card"><h2>Azi</h2><div id="log"></div></div>
+
+  <details class="card"><summary>Setari si date</summary>
+    <p><input id="code" type="password" placeholder="Cod aplicatie" autocomplete="off"></p>
+    <div class="pick"><button class="btn s" id="exp">Export JSON</button><button class="btn s" id="imp">Import JSON</button></div>
+    <input id="impf" type="file" accept="application/json">
+    <div id="dmsg" class="msg"></div>
+  </details>
+  <p><small>Estimarile sunt orientative, nu sfat medical.</small></p>
+</section>
+
+<section id="pageRet" hidden>
+  <h2 style="margin:6px 2px 12px;font-size:22px">Retete</h2>
+
+  <div class="card" id="editor">
+    <h2 id="edTitleH">Reteta noua</h2>
+    <label class="l" for="rTitle">Nume</label>
+    <input id="rTitle" type="text" maxlength="80" placeholder="ex: Piept de pui cu orez" autocomplete="off">
+    <div class="row2" style="margin-top:10px">
+      <div class="narrow"><label class="l" for="rServ">Portii</label><input id="rServ" type="number" inputmode="numeric" min="1" max="50" value="2"></div>
+      <div></div>
+    </div>
+    <label class="l" for="rIng">Ingrediente (unul pe rand)</label>
+    <textarea id="rIng" rows="6" maxlength="2000" placeholder="200 g piept de pui&#10;150 g orez&#10;1 lingura ulei de masline"></textarea>
+    <button class="btn s" id="rCalc" style="width:100%">Calculeaza reteta</button>
+    <div id="rMsg" class="msg"></div>
+    <div id="rResult" hidden>
+      <div id="rItems"></div>
+      <div class="tot" id="rTot"></div>
+      <div class="row2">
+        <button class="btn p" id="rSave">Salveaza reteta</button>
+        <button class="btn s" id="rReset">Reteta noua</button>
+      </div>
     </div>
   </div>
-  <div class="goal">Tinta zilnica <input id="goal" type="number" inputmode="numeric" min="800" max="6000"> kcal</div>
-</section>
 
-<section class="card">
-  <div class="pick">
-    <label class="btn p" for="fileCam" style="text-align:center">Fa poza</label>
-    <label class="btn p" for="fileGal" style="text-align:center">Din galerie</label>
-    <input id="fileCam" type="file" accept="image/*" capture="environment">
-    <input id="fileGal" type="file" accept="image/*">
+  <div class="card">
+    <h2>Retetele mele</h2>
+    <input id="rSearch" type="text" placeholder="Cauta dupa nume" autocomplete="off" style="margin-bottom:6px">
+    <div id="rList"></div>
   </div>
-  <div id="chosen" class="empty" style="margin-bottom:10px"></div>
-  <textarea id="desc" rows="2" placeholder="sau descrie mancarea (ex: 2 oua si paine)"></textarea>
-  <button class="btn s" id="go" style="width:100%">Calculeaza</button>
-  <div id="msg"></div>
+  <p><small>Valorile sunt estimari. Poti corecta gramajul fiecarui ingredient.</small></p>
 </section>
 
-<section class="card">
-  <b>Azi</b>
-  <div id="log"></div>
-</section>
-
-<details class="card"><summary>Setari si date</summary>
-  <p><input id="code" type="password" placeholder="Cod aplicatie" autocomplete="off"></p>
-  <div class="pick"><button class="btn s" id="exp">Export JSON</button><button class="btn s" id="imp">Import JSON</button></div>
-  <input id="impf" type="file" accept="application/json" hidden>
-</details>
-<p><small>Estimarile sunt orientative, nu sfat medical.</small></p>
+<nav>
+  <button id="tabAzi" class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Azi</button>
+  <button id="tabRet"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a3 3 0 0 1 3 3v11H7a3 3 0 0 1-3-3z"/><path d="M8 9h6M8 13h6"/></svg>Retete</button>
+</nav>
 </main>
 <script src="/app.js"></script>
 </body></html>
