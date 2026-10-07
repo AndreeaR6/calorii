@@ -47,7 +47,8 @@ export function extractText(data) {
 }
 
 async function analyze(request, env) {
-  if (!env.APP_CODE || !env.GEMINI_API_KEY) return json({ error: "secrets_lipsa" }, 500);
+  const lipsa = ["APP_CODE", "GEMINI_API_KEY"].filter((k) => typeof env[k] !== "string" || env[k].length === 0);
+  if (lipsa.length) return json({ error: "secrets_lipsa", lipsa }, 500);
   if (request.headers.get("x-app-code") !== env.APP_CODE) return json({ error: "cod_invalid" }, 401);
   let body;
   try { body = await request.json(); } catch { return json({ error: "json_invalid" }, 400); }
