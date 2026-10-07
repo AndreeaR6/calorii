@@ -3,21 +3,40 @@ const KEY = "calorii.v1";
 const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
 const save = (d) => { try { localStorage.setItem(KEY, JSON.stringify(d)); return JSON.stringify(load()) === JSON.stringify(d); } catch { return false; } };
 const day = (t) => new Date(t).toLocaleDateString("sv");
-let pending = [];
+const sum = (a, k) => a.reduce((s, e) => s + (Number(e[k]) || 0), 0);
+const getGoal = () => { try { return Number(localStorage.getItem("calorii.goal")) || 2000; } catch { return 2000; } };
 
 try { $("code").value = localStorage.getItem("calorii.code") || ""; } catch {}
+$("goal").value = getGoal();
+$("goal").onchange = () => {
+  const v = Math.max(800, Math.min(6000, Number($("goal").value) || 2000));
+  $("goal").value = v;
+  try { localStorage.setItem("calorii.goal", String(v)); } catch {}
+  render();
+};
 
 function render() {
-  const d = load(), today = day(Date.now());
-  const items = d.filter((e) => day(e.t) === today);
-  $("tot").textContent = Math.round(items.reduce((s, e) => s + e.kcal, 0));
-  const ul = $("log"); ul.textContent = "";
-  d.slice().reverse().slice(0, 50).forEach((e) => {
-    const li = document.createElement("li");
-    li.textContent = `${day(e.t)} - ${e.name} ${Math.round(e.grams)}g: ${Math.round(e.kcal)} kcal (P${Math.round(e.protein)} G${Math.round(e.fat)} C${Math.round(e.carbs)}) `;
-    const b = document.createElement("button"); b.textContent = "x"; b.style.width = "auto";
+  const items = load().filter((e) => day(e.t) === day(Date.now()));
+  const kcal = sum(items, "kcal"), goal = getGoal();
+  $("tot").textContent = Math.round(kcal);
+  $("mp").textContent = Math.round(sum(items, "protein")) + " g";
+  $("mf").textContent = Math.round(sum(items, "fat")) + " g";
+  $("mc").textContent = Math.round(sum(items, "carbs")) + " g";
+  const frac = Math.min(1, kcal / goal);
+  $("arc").setAttribute("stroke-dasharray", `${(352 * frac).toFixed(1)} 352`);
+  const box = $("log"); box.textContent = "";
+  if (!items.length) { const p = document.createElement("div"); p.className = "empty"; p.textContent = "Nimic adaugat azi."; box.appendChild(p); return; }
+  items.slice().reverse().forEach((e) => {
+    const row = document.createElement("div"); row.className = "meal";
+    const l = document.createElement("div");
+    const n = document.createElement("div"); n.className = "n"; n.textContent = e.name;
+    const d = document.createElement("div"); d.className = "d";
+    d.textContent = `${new Date(e.t).toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })} - ${Math.round(e.grams)} g - P${Math.round(e.protein)} G${Math.round(e.fat)} C${Math.round(e.carbs)}`;
+    l.append(n, d);
+    const k = document.createElement("div"); k.className = "k"; k.textContent = Math.round(e.kcal) + " kcal";
+    const b = document.createElement("button"); b.className = "x"; b.textContent = "x"; b.setAttribute("aria-label", "Sterge");
     b.onclick = () => { save(load().filter((x) => x.id !== e.id)); render(); };
-    li.appendChild(b); ul.appendChild(li);
+    row.append(l, k, b); box.appendChild(row);
   });
 }
 
@@ -37,12 +56,15 @@ function resize(file, max = 1000) {
   });
 }
 
+$("file").onchange = () => { $("photoBtn").textContent = $("file").files[0] ? "Poza aleasa" : "Poza cu mancare"; };
+
 $("go").onclick = async () => {
   const code = $("code").value.trim();
   try { localStorage.setItem("calorii.code", code); } catch {}
   const f = $("file").files[0], text = $("desc").value.trim();
+  $("msg").className = ""; 
   if (!f && !text) { $("msg").textContent = "Adauga poza sau descriere."; return; }
-  $("msg").className = "small"; $("msg").textContent = "Se calculeaza..."; $("res").textContent = "";
+  $("msg").textContent = "Se calculeaza...";
   try {
     const body = {};
     if (f) body.image = await resize(f);
@@ -50,17 +72,14 @@ $("go").onclick = async () => {
     const r = await fetch("/api/analyze", { method: "POST", headers: { "content-type": "application/json", "x-app-code": code }, body: JSON.stringify(body) });
     const j = await r.json();
     if (!r.ok) throw new Error(j.error + (j.status ? " (" + j.status + ")" : ""));
-    pending = j.items;
-    if (!pending.length) { $("msg").textContent = "Nu am gasit mancare."; return; }
+    const items = j.items;
+    if (!items.length) { $("msg").textContent = "Nu am gasit mancare."; return; }
     const d = load(), t = Date.now();
-    pending.forEach((it, i) => d.push({ id: t + "-" + i, t, ...it }));
+    items.forEach((it, i) => d.push({ id: t + "-" + i, t, ...it }));
     const ok = save(d);
-    $("msg").textContent = ok ? "Adaugat in jurnal (sterge cu x daca nu e corect):" : "ATENTIE: browserul nu salveaza datele (mod privat sau browser in aplicatie). Deschide in Safari.";
-    pending.forEach((it) => {
-      const p = document.createElement("div");
-      p.textContent = `${it.name} ${Math.round(it.grams)}g: ${Math.round(it.kcal)} kcal`;
-      $("res").appendChild(p);
-    });
+    $("msg").className = ok ? "" : "err";
+    $("msg").textContent = ok ? "Adaugat. Daca nu e corect, sterge cu x." : "ATENTIE: browserul nu salveaza datele (mod privat sau browser in aplicatie). Deschide in Safari.";
+    $("desc").value = ""; $("file").value = ""; $("photoBtn").textContent = "Poza cu mancare";
     render();
   } catch (e) { $("msg").className = "err"; $("msg").textContent = "Eroare: " + e.message; }
 };
@@ -72,6 +91,6 @@ $("exp").onclick = () => {
 };
 $("imp").onclick = () => $("impf").click();
 $("impf").onchange = async (e) => {
-  try { const d = JSON.parse(await e.target.files[0].text()); if (Array.isArray(d)) { save(d); render(); } } catch { $("msg").textContent = "Fisier invalid."; }
+  try { const d = JSON.parse(await e.target.files[0].text()); if (Array.isArray(d)) { save(d); render(); } } catch { $("msg").className = "err"; $("msg").textContent = "Fisier invalid."; }
 };
 render();
