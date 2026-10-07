@@ -1,7 +1,7 @@
 const $ = (id) => document.getElementById(id);
 const KEY = "calorii.v1";
 const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
-const save = (d) => { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch {} };
+const save = (d) => { try { localStorage.setItem(KEY, JSON.stringify(d)); return JSON.stringify(load()) === JSON.stringify(d); } catch { return false; } };
 const day = (t) => new Date(t).toLocaleDateString("sv");
 let pending = [];
 
@@ -52,13 +52,16 @@ $("go").onclick = async () => {
     if (!r.ok) throw new Error(j.error + (j.status ? " (" + j.status + ")" : ""));
     pending = j.items;
     if (!pending.length) { $("msg").textContent = "Nu am gasit mancare."; return; }
-    $("msg").textContent = "Verifica si adauga:";
-    pending.forEach((it, i) => {
-      const b = document.createElement("button");
-      b.textContent = `+ ${it.name} ${Math.round(it.grams)}g, ${Math.round(it.kcal)} kcal`;
-      b.onclick = () => { const d = load(); d.push({ id: Date.now() + "-" + i, t: Date.now(), ...it }); save(d); b.disabled = true; render(); };
-      $("res").appendChild(b);
+    const d = load(), t = Date.now();
+    pending.forEach((it, i) => d.push({ id: t + "-" + i, t, ...it }));
+    const ok = save(d);
+    $("msg").textContent = ok ? "Adaugat in jurnal (sterge cu x daca nu e corect):" : "ATENTIE: browserul nu salveaza datele (mod privat sau browser in aplicatie). Deschide in Safari.";
+    pending.forEach((it) => {
+      const p = document.createElement("div");
+      p.textContent = `${it.name} ${Math.round(it.grams)}g: ${Math.round(it.kcal)} kcal`;
+      $("res").appendChild(p);
     });
+    render();
   } catch (e) { $("msg").className = "err"; $("msg").textContent = "Eroare: " + e.message; }
 };
 
