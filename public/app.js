@@ -20,7 +20,15 @@ async function api(path, body) {
   let code = ""; try { code = localStorage.getItem("calorii.code") || ""; } catch {}
   const r = await fetch(path, { method: "POST", headers: { "content-type": "application/json", "x-app-code": code }, body: JSON.stringify(body) });
   let j = {}; try { j = await r.json(); } catch {}
-  if (!r.ok) throw new Error((j.error || "eroare") + (j.status ? " (" + j.status + ")" : ""));
+  if (!r.ok) {
+    if (r.status === 401 || j.error === "cod_invalid") {
+      tab("azi");
+      $("settings").open = true;
+      setMsg("cmsg", "Cod lipsa sau gresit - introdu-l aici.", true);
+      $("code").focus();
+    }
+    throw new Error((j.error || "eroare") + (j.status ? " (" + j.status + ")" : ""));
+  }
   return j;
 }
 
@@ -38,7 +46,7 @@ $("tabRet").onclick = () => tab("ret");
 
 /* ---------- Azi ---------- */
 try { $("code").value = localStorage.getItem("calorii.code") || ""; } catch {}
-$("code").onchange = () => { try { localStorage.setItem("calorii.code", $("code").value.trim()); } catch {} };
+$("code").oninput = () => { try { localStorage.setItem("calorii.code", $("code").value.trim()); } catch {} setMsg("cmsg", "", false); };
 $("goal").value = getGoal();
 $("goal").onchange = () => {
   const v = Math.max(800, Math.min(6000, Number($("goal").value) || 2000));

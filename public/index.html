@@ -93,8 +93,9 @@ nav svg{display:block;margin:0 auto 2px}
 
   <div class="card"><h2>Azi</h2><div id="log"></div></div>
 
-  <details class="card"><summary>Setari si date</summary>
-    <p><input id="code" type="password" placeholder="Cod aplicatie" autocomplete="off"></p>
+  <details class="card" id="settings"><summary>Setari si date</summary>
+    <p><input id="code" type="password" placeholder="Cod aplicatie" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></p>
+    <div id="cmsg" class="msg"></div>
     <div class="pick"><button class="btn s" id="exp">Export JSON</button><button class="btn s" id="imp">Import JSON</button></div>
     <input id="impf" type="file" accept="application/json">
     <div id="dmsg" class="msg"></div>
