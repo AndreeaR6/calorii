@@ -31,7 +31,20 @@ function render() {
     const l = document.createElement("div");
     const n = document.createElement("div"); n.className = "n"; n.textContent = e.name;
     const d = document.createElement("div"); d.className = "d";
-    d.textContent = `${new Date(e.t).toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })} - ${Math.round(e.grams)} g - P${Math.round(e.protein)} G${Math.round(e.fat)} C${Math.round(e.carbs)}`;
+    const time = new Date(e.t).toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" });
+    const gi = document.createElement("input");
+    gi.type = "number"; gi.min = "1"; gi.max = "5000"; gi.inputMode = "numeric"; gi.className = "gi";
+    gi.value = Math.round(e.grams); gi.setAttribute("aria-label", "Grame");
+    gi.onchange = () => {
+      const g = Number(gi.value);
+      if (!(g >= 1 && g <= 5000) || !(e.grams > 0)) { gi.value = Math.round(e.grams); return; }
+      const f = g / e.grams;
+      const all = load().map((x) => x.id === e.id ? { ...x, grams: g, kcal: x.kcal * f, protein: x.protein * f, fat: x.fat * f, carbs: x.carbs * f } : x);
+      save(all); render();
+    };
+    const mac = document.createElement("span");
+    mac.textContent = ` g - P${Math.round(e.protein)} G${Math.round(e.fat)} C${Math.round(e.carbs)}`;
+    d.append(time + " - ", gi, mac);
     l.append(n, d);
     const k = document.createElement("div"); k.className = "k"; k.textContent = Math.round(e.kcal) + " kcal";
     const b = document.createElement("button"); b.className = "x"; b.textContent = "x"; b.setAttribute("aria-label", "Sterge");
